@@ -17,7 +17,7 @@ namespace TestHost
             Console.WriteLine("Dashboard will listen on http://localhost:8080/");
 
             // Deploy 3 silos
-            var options = new TestClusterOptions(3);
+            var options =  new TestClusterOptions(3);
             options.ClusterConfiguration.Globals.RegisterDashboard();
             var cluster = new TestCluster(options);
             cluster.Deploy();
