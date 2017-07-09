@@ -5,6 +5,7 @@ using Orleans;
 using Orleans.TestingHost;
 using OrleansDashboard;
 using TestGrains;
+using System.Collections.Generic;
 
 namespace TestHost
 {
@@ -41,28 +42,78 @@ namespace TestHost
 
         private static async Task CallGenerator(IClusterClient client, CancellationTokenSource tokenSource)
         {
-            var x = client.GetGrain<ITestGenericGrain<string, int>>("test");
-            x.TestT("string").Wait();
-            x.TestU(1).Wait();
-            x.TestTU("string", 1).Wait();
+            var eventIdList = new List<long>();
+            for (long i = 1; i < 1000; i++)
+            {
+                eventIdList.Add(i);
+            }
 
-            var rand = new Random();
+            var eventOutcomeIdList = new List<long>();
+            for (long i = 1; i < 100; i++)
+            {
+                eventOutcomeIdList.Add(i);
+            }
+
+            Parallel.ForEach(eventIdList, async e =>
+             {
+                 await AddEvent(client, e);
+             });
+
+            Parallel.ForEach(eventIdList, async e =>
+            {
+                var rand = new Random().Next(10000);
+                await AddEventMarket(client, e, rand);
+                Parallel.ForEach(eventOutcomeIdList, async o =>
+                {
+                    await AddEventMarketOutcome(client, e, rand, o);
+                });
+            });
+
+            Parallel.ForEach(eventIdList, async e =>
+            {
+                await GetEvent(client, e);
+            });
+
             while (!tokenSource.IsCancellationRequested)
             {
-                var testGrain = client.GetGrain<ITestGrain>(rand.Next(500));
-                await testGrain.ExampleMethod1();
-                try
-                {
-                    await testGrain.ExampleMethod2();
-                }
-                catch
-                { }
 
-                // interceptors are currently broken for generic grains
-                // https://github.com/dotnet/orleans/issues/2358
-                //var genericClient = GrainClient.GrainFactory.GetGrain<IGenericGrain<string>>("foo");
-                //genericClient.Echo("hello world").Wait();
             }
+        }
+
+        private static async Task AddEvent(IClusterClient client, long id)
+        {
+            var testGrain = client.GetGrain<ITestEventGrain>(id.ToString());
+            await testGrain.AddEvent(new Event
+            {
+                Id = id,
+                EventName = $"Event {id}"
+            });
+        }
+
+        private static async Task AddEventMarket(IClusterClient client, long eventId, long id)
+        {
+            var testGrain = client.GetGrain<ITestEventGrain>(eventId.ToString());
+            await testGrain.AddEventMarket(new EventMarket
+            {
+                EventMarketName = $"Test EventMarket {id}",
+                Id = id
+            });
+        }
+
+        private static async Task AddEventMarketOutcome(IClusterClient client, long eventId, long eventMarketid, long id)
+        {
+            var testGrain = client.GetGrain<ITestEventGrain>(eventId.ToString());
+            await testGrain.AddEventMarketOutcome(new EventMarketOutcome
+            {
+                EventMarketOutcomeName = $"Test EventMarketOutcome {id}",
+                Id = id
+            }, eventMarketid);
+        }
+
+        private static async Task<Event> GetEvent(IClusterClient client, long id)
+        {
+            var testGrain = client.GetGrain<ITestEventGrain>(id.ToString());
+            return await testGrain.GetEvent();
         }
     }
 }

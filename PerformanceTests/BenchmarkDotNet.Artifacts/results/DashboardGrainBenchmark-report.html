@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>DashboardGrainBenchmark</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.8, OS=Windows 10 Redstone 1 (10.0.14393)
+Processor=Intel Core i5-2430M CPU 2.40GHz (Sandy Bridge), ProcessorCount=4
+Frequency=2338439 Hz, Resolution=427.6357 ns, Timer=TSC
+  [Host] : Clr 4.0.30319.42000, 32bit LegacyJIT-v4.6.1648.0DEBUG [AttachedDebugger]
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>SiloCount</th><th>GrainTypeCount</th><th>GrainMethodCount</th><th>GrainActivationPerSiloCount</th><th>GrainCallsPerActivationCount</th><th>Mean</th><th>Error</th>
+</tr>
+</thead><tbody><tr><td>Recalculate</td><td>  3</td><td>      50</td><td>        10</td><td>                  100</td><td>                  1000</td><td>NA</td><td>NA</td>
+</tr><tr><td>Recalculate</td><td>  3</td><td>     100</td><td>        10</td><td>                  100</td><td>                  1000</td><td>NA</td><td>NA</td>
+</tr><tr><td>Recalculate</td><td>  3</td><td>     200</td><td>        10</td><td>                  100</td><td>                  1000</td><td>NA</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>
